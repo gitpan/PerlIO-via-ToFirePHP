@@ -1,12 +1,9 @@
 #!/usr/bin/env perl
-
 use warnings;
 use strict;
 use Test::More tests => 3;
-
 use FirePHP::Dispatcher;
 use HTTP::Headers;
-
 use PerlIO::via::ToFirePHP;
 my $fire_php = FirePHP::Dispatcher->new(HTTP::Headers->new);
 open my $fh, '>:via(ToFirePHP)', $fire_php or die "can't open: $!";
@@ -15,9 +12,7 @@ open my $fh, '>:via(ToFirePHP)', $fire_php or die "can't open: $!";
 print $fh 'First line part A ';
 print $fh "First line part B\n";
 print $fh "Second line\n";
-
 close $fh or die "can't close: $!";
-
 $fire_php->finalize;
 is($fire_php->message_index, 2, 'Recorded two messages');
 like(

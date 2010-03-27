@@ -1,25 +1,45 @@
-use inc::Module::Install;
-include 'Module::AutoInstall';
 
-name 'PerlIO-via-ToFirePHP';
-all_from 'lib/PerlIO/via/ToFirePHP.pm';
-perl_version '5.006';
+use strict;
+use warnings;
 
-homepage 'http://search.cpan.org/dist/PerlIO-via-ToFirePHP/';
-bugtracker 'http://rt.cpan.org/Public/Dist/Display.html?Name=PerlIO-via-ToFirePHP';
-repository 'http://github.com/hanekomu/perlio-via-tofirephp/tree/master';
+ BEGIN { require 5.008; } 
 
-requires 'FirePHP::Dispatcher';
-requires 'PerlIO::via';
+use ExtUtils::MakeMaker 6.11;
 
-# only needed for tests, but FirePHP::Dispatcher needs this anyway, so I don't
-# feel bad about requiring it here:
 
-requires 'HTTP::Headers';
 
-test_requires 'Test::More' => '0.70';
-extra_tests;
+my %WriteMakefileArgs = (
+                       'test' => {
+                                   'TESTS' => 't/*.t'
+                                 },
+                       'NAME' => 'PerlIO::via::ToFirePHP',
+                       'DISTNAME' => 'PerlIO-via-ToFirePHP',
+                       'CONFIGURE_REQUIRES' => {
+                                                 'ExtUtils::MakeMaker' => '6.11'
+                                               },
+                       'AUTHOR' => 'Marcel Gruenauer <marcel@cpan.org>',
+                       'BUILD_REQUIRES' => {},
+                       'ABSTRACT' => 'log to FirePHP via an PerlIO layer',
+                       'EXE_FILES' => [],
+                       'VERSION' => '1.100860',
+                       'PREREQ_PM' => {
+                                        'Scalar::Util' => '0',
+                                        'English' => '0',
+                                        'Carp' => '0',
+                                        'Test::More' => '0.88',
+                                        'FirePHP::Dispatcher' => '0',
+                                        'HTTP::Headers' => '0',
+                                        'File::Find' => '0',
+                                        'File::Temp' => '0'
+                                      },
+                       'LICENSE' => 'perl'
+                     );
 
-auto_install;
-auto_include;
-WriteAll;
+
+delete $WriteMakefileArgs{LICENSE}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.31) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+
+

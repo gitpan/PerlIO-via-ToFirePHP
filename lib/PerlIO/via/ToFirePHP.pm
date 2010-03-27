@@ -1,20 +1,20 @@
-package PerlIO::via::ToFirePHP;
-
+use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+package PerlIO::via::ToFirePHP;
+our $VERSION = '1.100860';
+# ABSTRACT: log to FirePHP via an PerlIO layer
 
 sub PUSHED {
     my ($class, $mode, $fh) = @_;
     return -1 unless $mode eq 'w';
-    bless {
-        buf => '',
-    }, $class;
+    bless { buf => '', }, $class;
 }
 
 sub OPEN {
     my ($self, $path, $mode, $fh) = @_;
+
     # $path is actually our FirePHP::Dispatcher object
     $self->{fire_php} = $path;
     1;
@@ -24,10 +24,10 @@ sub WRITE {
     my ($self, $buf, $fh) = @_;
 
     # accumulate whole lines before logging
-
     $self->{buf} .= $buf;
     if ($self->{buf} =~ tr/\n//) {
         $self->{fire_php}->log($self->{buf});
+
         # finalize now in case CLOSE() doesn't get called; it's idempotent
         $self->{fire_php}->finalize;
         $self->{buf} = '';
@@ -40,14 +40,19 @@ sub CLOSE {
     $self->{fire_php}->finalize;
     0;
 }
-
 1;
 
+
 __END__
+=pod
 
 =head1 NAME
 
 PerlIO::via::ToFirePHP - log to FirePHP via an PerlIO layer
+
+=head1 VERSION
+
+version 1.100860
 
 =head1 SYNOPSIS
 
@@ -87,25 +92,26 @@ would stop looking. This bug seems to be fixed in perl 5.10.1.
 
 =head1 METHODS
 
-=over 4
+=head2 PUSHED
 
-=item PUSHED
+Called by L<PerlIO::via> - read its documentation for details.
 
-=item OPEN
+=head2 OPEN
 
-=item WRITE
+Called by L<PerlIO::via> - read its documentation for details.
 
-=item CLOSED
+=head2 WRITE
 
-These methods are called by L<PerlIO::via> - read its documentation for
-details.
+Called by L<PerlIO::via> - read its documentation for details.
 
 C<WRITE()> accumulates input until a newline is seen, only then will it remove
 the newline and send the accumulated input to the L<FirePHP::Dispatcher>
 object. The motivation for this was that L<DBI>'s C<trace()> method reports
 trace output in chunks, not necessarily whole lines.
 
-=back
+=head2 CLOSED
+
+Called by L<PerlIO::via> - read its documentation for details.
 
 =head1 SEE ALSO
 
@@ -122,38 +128,39 @@ See this module for how to implement PerlIO layers in Perl.
 
 =back
 
+=head1 INSTALLATION
+
+See perlmodinstall for information and options on installing Perl modules.
+
 =head1 BUGS AND LIMITATIONS
 
 No bugs have been reported.
 
 Please report any bugs or feature requests through the web interface at
-L<http://rt.cpan.org>.
-
-=head1 INSTALLATION
-
-See perlmodinstall for information and options on installing Perl modules.
+L<http://rt.cpan.org/Public/Dist/Display.html?Name=PerlIO-via-ToFirePHP>.
 
 =head1 AVAILABILITY
 
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you. Or see L<http://www.perl.com/CPAN/authors/id/M/MA/MARCEL/>.
+site near you, or see
+L<http://search.cpan.org/dist/PerlIO-via-ToFirePHP/>.
 
 The development version lives at
-L<http://github.com/hanekomu/perlio-via-tofirephp/>.  Instead of sending
-patches, please fork this project using the standard git and github
-infrastructure.
+L<http://github.com/hanekomu/PerlIO-via-ToFirePHP/>.
+Instead of sending patches, please fork this project using the standard git
+and github infrastructure.
 
-=head1 AUTHORS
+=head1 AUTHOR
 
-Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
+  Marcel Gruenauer <marcel@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2009 by Marcel GrE<uuml>nauer
+This software is copyright (c) 2009 by Marcel Gruenauer.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
